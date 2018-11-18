@@ -37,13 +37,13 @@ const AnnouncementType = new GraphQLObjectType({
     })
 })
 
-const getAnnouncements = async (res) => {
-    let $ = cheerio.load(await res.text())
+const getAnnouncements = async (homePageData) => {
+    let $ = cheerio.load(await homePageData.text())
     return $('.motd')
 }
 
-const getAnnouncementTitle = async (announcement) => {
-    let $ = cheerio.load(await announcement)
+const getAnnouncementTitle = async (announcementData) => {
+    let $ = cheerio.load(await announcementData)
     return $('.titleLine').text().replace(/[\t\r]/g,"").replace(/[\n\n\n]/g, " ").replace("  Link  ", "").trim()
 }
 
