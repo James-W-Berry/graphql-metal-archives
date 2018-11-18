@@ -1,0 +1,34 @@
+{
+  "name": "graphql-metal-archives",
+  "version": "1.0.0",
+  "description": "GraphQL server for Metal Archives",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server/index.js --watch server --exec babel-node --presets es2015,stage-2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/James-W-Berry/graphql-metal-archives.git"
+  },
+  "author": "James Berry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/James-W-Berry/graphql-metal-archives/issues"
+  },
+  "homepage": "https://github.com/James-W-Berry/graphql-metal-archives#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "6.16.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-cli": "^6.26.0",
+    "nodemon": "^1.18.4"
+  },
+  "dependencies": {
+    "babel-preset-env": "^1.7.0",
+    "cheerio": "^0.22.0",
+    "cors": "^2.8.1",
+    "express": "^4.16.4",
+    "express-graphql": "^0.7.1",
+    "graphql": "^14.0.2",
+    "node-fetch": "^1.6.3"
+  }
+}
