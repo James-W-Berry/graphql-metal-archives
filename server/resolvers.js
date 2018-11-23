@@ -13,6 +13,30 @@ export const HomePageType = new GraphQLObjectType({
         Announcements: {
             type: new GraphQLList(AnnouncementType),
             resolve: res => getAnnouncements(res)     
+        },
+        UpcomingAlbums: {
+            type: new GraphQLList(UpcomingAlbumsType),
+            resolve: res => getUpcomingAlbums(res)
+        }
+    })
+})
+
+const UpcomingAlbumsType = new GraphQLObjectType({
+    name: 'UpcomingAlbums',
+    description: 'Upcoming albums to be released',
+
+    fields: () => ({
+        band: {
+            type: GraphQLString,
+            resolve: upcomingAlbums => getUpcomingAlbumBand(upcomingAlbums)
+        },
+        album: {
+            type: GraphQLString,
+            resolve: upcomingAlbums => getUpcomingAlbumName(upcomingAlbums)
+        },
+        releaseDate: {
+            type: GraphQLString,
+            resolve: upcomingAlbums => getUpcomingAlbumReleaseDate(upcomingAlbums)
         }
     })
 })
@@ -54,5 +78,25 @@ const getAnnouncementBody = async (announcementData) => {
 
 const getAnnouncementAuthor = async (announcementData) => {
     let $ = cheerio.load(await announcementData)
-    return $('.profileMenu').first().text().replace(/[\t\r]/g,"").replace(/[\n]/g, " ").trim()
+    return $('.profileMenu').text().replace(/[\t\r]/g,"").replace(/[\n]/g, " ").trim()
+}
+
+const getUpcomingAlbums = async (homePageData) => {
+    let $ = cheerio.load(await homePageData.text())
+    return $('#upcomingAlbums .ui-tabs-panel-content tr')
+}
+
+const getUpcomingAlbumBand = async (upcomingAlbumsData) => {
+    let $ = cheerio.load(await upcomingAlbumsData)
+    return $('tr').children('td').eq(0).text()
+}
+
+const getUpcomingAlbumName = async (upcomingAlbumsData) => {
+    let $ = cheerio.load(await upcomingAlbumsData)
+    return $('tr').children('td').eq(1).text()
+}
+
+const getUpcomingAlbumReleaseDate = async (upcomingAlbumsData) => {
+    let $ = cheerio.load(await upcomingAlbumsData)
+    return $('tr').children('td').eq(2).text()
 }
