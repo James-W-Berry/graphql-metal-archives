@@ -26,6 +26,7 @@
     "babel-preset-env": "^1.7.0",
     "cheerio": "^0.22.0",
     "cors": "^2.8.1",
+    "event-stream": "^3.3.4",
     "express": "^4.16.4",
     "express-graphql": "^0.7.1",
     "graphql": "^14.0.2",
