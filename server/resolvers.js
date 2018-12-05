@@ -38,37 +38,41 @@ const BandBackgroundType = new GraphQLObjectType({
     description: 'Background information on the band',
 
     fields: () => ({
+        name: {
+            type: GraphQLString,
+            resolve: bandInfo => getName(bandInfo)
+        },
         country: {
             type: GraphQLString,
-            resolve: bandBackground => getCountry(bandBackground)
+            resolve: bandInfo => getCountry(bandInfo)
         },
         location: {
             type: GraphQLString,
-            resolve: bandBackground => getLocation(bandBackground)
+            resolve: bandInfo => getLocation(bandInfo)
         },
         status: {
             type: GraphQLString,
-            resolve: bandBackground => getStatus(bandBackground)
+            resolve: bandInfo => getStatus(bandInfo)
         },
         yearFormed: {
             type: GraphQLString,
-            resolve: bandBackground => getYearFormed(bandBackground)
+            resolve: bandInfo => getYearFormed(bandInfo)
         },
         genre: {
             type: GraphQLString,
-            resolve: bandBackground => getGenre(bandBackground)
+            resolve: bandInfo => getGenre(bandInfo)
         },
         lyricalThemes: {
             type: GraphQLString,
-            resolve: bandBackground => getLyricalThemes(bandBackground)
+            resolve: bandInfo => getLyricalThemes(bandInfo)
         },
         label: {
             type: GraphQLString,
-            resolve: bandBackground => getLabel(bandBackground)
+            resolve: bandInfo => getLabel(bandInfo)
         },
         yearsActive: {
             type: GraphQLString,
-            resolve: bandBackground => getYearsActive(bandBackground)
+            resolve: bandInfo => getYearsActive(bandInfo)
         }
     })
 })
@@ -154,46 +158,51 @@ const getUpcomingAlbumReleaseDate = async (upcomingAlbumsData) => {
 }
 
 const getBandBackground = async (bandPageData) => {
-    let $ = cheerio.load(await bandPageData)
-    return $('#band_stats')
+    let $ = cheerio.load(await bandPageData.text())
+    return $('#band_info')
+}
+
+const getName = async (bandBackgroundData) => {
+    let $ = cheerio.load(await bandBackgroundData)
+    return $('#band_info .band_name').children('a').eq(0).text()
 }
 
 const getCountry = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_left').children('dd').eq(0).text()
 }
 
 const getLocation = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_left').children('dd').eq(1).text()
 }
 
 const getStatus = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_left').children('dd').eq(2).text()
 }
 
 const getYearFormed = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_left').children('dd').eq(3).text()
 }
 
 const getGenre = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_right').children('dd').eq(0).text()
 }
 
 const getLyricalThemes = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_right').children('dd').eq(1).text()
 }
 
 const getLabel = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .float_right').children('dd').eq(2).text()
 }
 
 const getYearsActive = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
-    return $()
+    return $('#band_stats .clear').children('dd').eq(0).text().replace(/[\t\r\n]/g,"").replace(/ +(?= )/g,'').trim()
 }

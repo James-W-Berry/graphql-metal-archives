@@ -18,9 +18,9 @@ module.exports = new GraphQLSchema({
                 args: {
                     band: { type: GraphQLString }
                 },
-                resolve: () => fetch(
-                    `https://www.metal-archives.com/bands/${band}`
-                )
+                resolve: (res, args, context) => fetch(
+                    `https://www.metal-archives.com/bands/${args}`
+                )                
             }
         }
     }),
