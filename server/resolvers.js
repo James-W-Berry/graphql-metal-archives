@@ -29,6 +29,26 @@ export const BandPageType = new GraphQLObjectType({
         Background: {
             type: new GraphQLList(BandBackgroundType),
             resolve: res => getBandBackground(res)
+        },
+        Comment: {
+            type: new GraphQLList(BandCommentType),
+            resolve: res => getBandComment(res)
+        }
+    })
+})
+
+const BandCommentType = new GraphQLObjectType({
+    name: 'BandComment',
+    description: 'Comment on the band',
+
+    fields: () => ({
+        comment: {
+            type: GraphQLString,
+            resolve: bandComment => getComment(bandComment)
+        },
+        expandLink: {
+            type: GraphQLString,
+            resolve: bandComment => getExpandLink(bandComment)
         }
     })
 })
@@ -205,4 +225,21 @@ const getLabel = async (bandBackgroundData) => {
 const getYearsActive = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
     return $('#band_stats .clear').children('dd').eq(0).text().replace(/[\t\r\n]/g,"").replace(/ +(?= )/g,'').trim()
+}
+
+const getBandComment = async (bandPageData) => {
+    let $ = cheerio.load(await bandPageData.text())
+    return $('.band_comment.clear')
+}
+
+const getComment = async (bandCommentData) => {
+     let $ = cheerio.load(await bandCommentData)
+     return $('.band_comment').text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+}
+
+const getExpandLink = async (bandCommentData) => {
+    //TODO: resolve expanded comment 
+    let $ = cheerio.load(await bandCommentData)
+    //return $('.tool_strip.bottom.right').children('a').text().trim()
+    return "expanded comment"
 }
