@@ -33,6 +33,38 @@ export const BandPageType = new GraphQLObjectType({
         Comment: {
             type: new GraphQLList(BandCommentType),
             resolve: res => getBandComment(res)
+        },
+        Discography: {
+            type: new GraphQLList(BandDiscographyType),
+            resolve: res => getBandDiscography(res)
+        }
+    })
+})
+
+const BandDiscographyType = new GraphQLObjectType({
+    name: 'BandDiscography',
+    description: 'complete discography for the band',
+
+    fields: () => ({
+        name: {
+            type: GraphQLString,
+            resolve: bandDiscography => getDiscographyName(bandDiscography)
+        },
+        type: {
+            type: GraphQLString,
+            resolve: bandDiscography => getDiscographyType(bandDiscography)
+        },
+        year: {
+            type: GraphQLString,
+            resolve: bandDiscography => getDiscographyYear(bandDiscography)
+        },
+        score: {
+            type: GraphQLString,
+            resolve: bandDiscography => getDiscographyScore(bandDiscography)
+        },
+        reviewLink: {
+            type: GraphQLString,
+            resolve: bandDiscography => getDiscographyReviewLink(bandDiscography)
         }
     })
 })
@@ -242,4 +274,36 @@ const getExpandLink = async (bandCommentData) => {
     let $ = cheerio.load(await bandCommentData)
     //return $('.tool_strip.bottom.right').children('a').text().trim()
     return "expanded comment"
+}
+
+const getBandDiscography = async (bandPageData) => {
+    let $ = cheerio.load(await bandPageData.text())
+    return $('#band_content')
+}
+
+const getDiscographyName = async (bandDiscographyData) => {
+    let $ = cheerio.load(await bandDiscographyData)
+    //TODO: resolve individual discography items
+    return $.text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+}
+
+const getDiscographyType = async (bandDiscographyData) => {
+    let $ = cheerio.load(await bandDiscographyData)
+    return $('#ui-tabs-4 table.display tr').children('td').eq(1).text()
+}
+
+const getDiscographyYear = async (bandDiscographyData) => {
+    let $ = cheerio.load(await bandDiscographyData)
+    return $('tr').children('td').eq(2).text()
+}
+
+const getDiscographyScore = async (bandDiscographyData) => {
+    let $ = cheerio.load(await bandDiscographyData)
+    return $('tr').children('td').eq(3).text()
+}
+
+const getDiscographyReviewLink = async (bandDiscographyData) => {
+    let $ = cheerio.load(await bandDiscographyData)
+    //return $('tr').children('td').eq(3).attr('href').text()
+    return "review link"
 }
