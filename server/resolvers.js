@@ -1,4 +1,6 @@
 const cheerio = require('cheerio')
+const fetch = require('node-fetch')
+
 import {
   GraphQLObjectType,
   GraphQLString,
@@ -278,32 +280,37 @@ const getExpandLink = async (bandCommentData) => {
 
 const getBandDiscography = async (bandPageData) => {
     let $ = cheerio.load(await bandPageData.text())
-    return $('#band_content')
+    const band_id = $('#band_info h1 a').attr('href').split("/")[5]
+    const discographyPageData = await fetch(`https://www.metal-archives.com/band/discography/id/${band_id}/tab/all`)
+    let discogSelector = cheerio.load(await discographyPageData.text())
+    return discogSelector('.display.discog tbody tr');
 }
 
 const getDiscographyName = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
-    //TODO: resolve individual discography items
-    return $.text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+    return $('tr').children('td').eq(0).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
 }
 
 const getDiscographyType = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
-    return $('#ui-tabs-4 table.display tr').children('td').eq(1).text()
+    return $('tr').children('td').eq(1).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
 }
 
 const getDiscographyYear = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
-    return $('tr').children('td').eq(2).text()
+    return $('tr').children('td').eq(2).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
 }
 
 const getDiscographyScore = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
-    return $('tr').children('td').eq(3).text()
+    let review = $('tr').children('td').eq(3).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+    let score = review.split(" ")[1].replace("(", "").replace(")", "")
+    let reviewers =  review.split(" ")[0]
+    if(reviewers === "1") return (`${score} - ${reviewers} review`)
+    else return (`${score} - ${reviewers} reviews`)
 }
 
 const getDiscographyReviewLink = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
-    //return $('tr').children('td').eq(3).attr('href').text()
-    return "review link"
+    return $('tr').children('td').eq(3).children('a').attr('href')
 }
