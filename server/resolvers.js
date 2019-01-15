@@ -7,6 +7,7 @@ import {
   GraphQLList
 } from 'graphql';
 
+
 export const HomePageType = new GraphQLObjectType({
     name: 'HomePage',
     description: 'Base object representing Metal Archives landing page',
@@ -14,7 +15,7 @@ export const HomePageType = new GraphQLObjectType({
     fields: () => ({
         Announcements: {
             type: new GraphQLList(AnnouncementType),
-            resolve: res => getAnnouncements(res)     
+            resolve: res => getAnnouncements(res)    
         },
         UpcomingAlbums: {
             type: new GraphQLList(UpcomingAlbumsType),
@@ -212,7 +213,8 @@ const AnnouncementType = new GraphQLObjectType({
 })
 
 const getAnnouncements = async (homePageData) => {
-    let $ = cheerio.load(await homePageData.text())
+    let data = homePageData.clone();
+    let $ = cheerio.load(await data.text())
     return $('.motd')
 }
 
@@ -232,7 +234,8 @@ const getAnnouncementAuthor = async (announcementData) => {
 }
 
 const getUpcomingAlbums = async (homePageData) => {
-    let $ = cheerio.load(await homePageData.text())
+    let data = homePageData.clone();
+    let $ = cheerio.load(await data.text())
     return $('#upcomingAlbums .ui-tabs-panel-content tr')
 }
 
@@ -252,7 +255,8 @@ const getUpcomingAlbumReleaseDate = async (upcomingAlbumsData) => {
 }
 
 const getBandBackground = async (bandPageData) => {
-    let $ = cheerio.load(await bandPageData.text())
+    let data = bandPageData.clone();
+    let $ = cheerio.load(await data.text())
     return $('#band_info')
 }
 
@@ -307,7 +311,8 @@ const getYearsActive = async (bandBackgroundData) => {
 }
 
 const getBandComment = async (bandPageData) => {
-    let $ = cheerio.load(await bandPageData.text())
+    let data = bandPageData.clone();
+    let $ = cheerio.load(await data.text())
     return $('.band_comment.clear')
 }
 
@@ -324,7 +329,8 @@ const getExpandLink = async (bandCommentData) => {
 }
 
 const getBandDiscography = async (bandPageData) => {
-    let $ = cheerio.load(await bandPageData.text())
+    let data = bandPageData.clone();
+    let $ = cheerio.load(await data.text())
     const band_id = $('#band_info h1 a').attr('href').split("/")[5]
     const discographyPageData = await fetch(`https://www.metal-archives.com/band/discography/id/${band_id}/tab/all`)
     let discogSelector = cheerio.load(await discographyPageData.text())
@@ -349,19 +355,31 @@ const getDiscographyYear = async (bandDiscographyData) => {
 const getDiscographyScore = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
     let review = $('tr').children('td').eq(3).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
-    let score = review.split(" ")[1].replace("(", "").replace(")", "")
-    let reviewers =  review.split(" ")[0]
-    if(reviewers === "1") return (`${score} - ${reviewers} review`)
-    else return (`${score} - ${reviewers} reviews`)
+
+    if (review !== "") { 
+        let score = review.split(" ")[1].replace("(", "").replace(")", "")
+        let reviewers =  review.split(" ")[0]
+        if(reviewers === "1") {
+            return (`${score} - ${reviewers} review`)
+        } else {
+            return (`${score} - ${reviewers} reviews`)
+        }
+    } else {
+        return review
+    }    
 }
 
 const getDiscographyReviewLink = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
-    return $('tr').children('td').eq(3).children('a').attr('href')
+    let reviewLink = $('tr').children('td').eq(3).children('a').attr('href')
+    
+    if (reviewLink !== undefined) { return reviewLink }
+    else { return "" }
 }
 
 const getDiscographyReviews = async (reviewPageData) => {
-    let $ = cheerio.load(await reviewPageData.text())
+    let data = reviewPageData.clone();
+    let $ = cheerio.load(await data.text())
     return $('.reviewBox');
 }
 
