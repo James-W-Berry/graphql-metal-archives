@@ -40,6 +40,10 @@ export const BandPageType = new GraphQLObjectType({
         Discography: {
             type: new GraphQLList(BandDiscographyType),
             resolve: res => getBandDiscography(res)
+        },
+        Members: {
+            type: new GraphQLList(BandMembersType),
+            resolve: res => getBandMembers(res)
         }
     })
 })
@@ -76,6 +80,42 @@ const ReviewType = new GraphQLObjectType({
         reviewBody: {
             type: GraphQLString,
             resolve: reviews => getReviewBody(reviews)
+        }
+    })
+})
+
+const BandMembersType = new GraphQLObjectType({
+    name: 'BandMembers',
+    description: 'band members',
+
+    fields: () => ({
+        current: {
+            type: new GraphQLList(MemberType),
+            resolve: bandMembers => getCurrentMembers(bandMembers)
+        },
+        past: {
+            type: new GraphQLList(MemberType),
+            resolve: bandMembers => getPastMembers(bandMembers)
+        },
+        live: {
+            type: new GraphQLList(MemberType),
+            resolve: bandMembers => getLiveMembers(bandMembers)
+        }
+    })
+})
+
+const MemberType = new GraphQLObjectType({
+    name: 'BandMember',
+    description: 'band member',
+
+    fields: () => ({
+        name: {
+            type: GraphQLString,
+            resolve: member => getMemberName(member)
+        },
+        instruments: {
+            type: GraphQLString,
+            resolve: member => getMemberInstruments(member)
         }
     })
 })
@@ -372,7 +412,7 @@ const getDiscographyScore = async (bandDiscographyData) => {
 const getDiscographyReviewLink = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
     let reviewLink = $('tr').children('td').eq(3).children('a').attr('href')
-    
+
     if (reviewLink !== undefined) { return reviewLink }
     else { return "" }
 }
@@ -403,4 +443,35 @@ const getReviewDate = async (reviewData) => {
 const getReviewBody = async (reviewData) => {
     let $ = cheerio.load(await reviewData)
     return $('.reviewContent').text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+}
+
+const getBandMembers = async (bandPageData) => {
+    let data = bandPageData.clone();
+    let $ = cheerio.load(await data.text())
+    return $('#band_members')
+}
+
+const getCurrentMembers = async (memberData) => {
+    let $ = cheerio.load(await memberData)
+    return $('#band_tab_members_current tr.lineupRow')
+}
+
+const getPastMembers = async (memberData) => {
+    let $ = cheerio.load(await memberData)
+    return $('#band_tab_members_past tr.lineupRow')
+}
+
+const getLiveMembers = async (memberData) => {
+    let $ = cheerio.load(await memberData)
+    return $('#band_tab_members_live tr.lineupRow')
+}
+
+const getMemberName = async (member) => {
+    let $ = cheerio.load(await member)
+    return $('tr').children('td').eq(0).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+}
+
+const getMemberInstruments = async (member) => {
+    let $ = cheerio.load(await member)
+    return $('tr').children('td').eq(1).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
 }
