@@ -43,6 +43,42 @@ export const BandPageType = new GraphQLObjectType({
     })
 })
 
+export const ReviewPageType = new GraphQLObjectType({
+    name: 'ReviewPage',
+    description: 'Discography Review',
+
+    fields: () => ({
+        Reviews: {
+            type: new GraphQLList(ReviewType),
+            resolve: res => getDiscographyReviews(res)
+        }
+    })
+})
+
+const ReviewType = new GraphQLObjectType({
+    name: 'Review',
+    description: 'Discography item reviews',
+
+    fields: () => ({
+        title: {
+            type: GraphQLString,
+            resolve: reviews => getReviewTitle(reviews)
+        },
+        author: {
+            type: GraphQLString,
+            resolve: reviews => getReviewAuthor(reviews)
+        },
+        date: {
+            type: GraphQLString,
+            resolve: reviews => getReviewDate(reviews)
+        },
+        reviewBody: {
+            type: GraphQLString,
+            resolve: reviews => getReviewBody(reviews)
+        }
+    })
+})
+
 const BandDiscographyType = new GraphQLObjectType({
     name: 'BandDiscography',
     description: 'complete discography for the band',
@@ -92,6 +128,10 @@ const BandBackgroundType = new GraphQLObjectType({
     description: 'Background information on the band',
 
     fields: () => ({
+        id: {
+            type: GraphQLString,
+            resolve: bandInfo => getId(bandInfo)
+        },
         name: {
             type: GraphQLString,
             resolve: bandInfo => getName(bandInfo)
@@ -216,6 +256,11 @@ const getBandBackground = async (bandPageData) => {
     return $('#band_info')
 }
 
+const getId = async (bandBackgroundData) => {
+    let $ = cheerio.load(await bandBackgroundData)
+    return $('#band_info .band_name').children('a').attr('href')
+}
+
 const getName = async (bandBackgroundData) => {
     let $ = cheerio.load(await bandBackgroundData)
     return $('#band_info .band_name').children('a').eq(0).text()
@@ -313,4 +358,31 @@ const getDiscographyScore = async (bandDiscographyData) => {
 const getDiscographyReviewLink = async (bandDiscographyData) => {
     let $ = cheerio.load(await bandDiscographyData)
     return $('tr').children('td').eq(3).children('a').attr('href')
+}
+
+const getDiscographyReviews = async (reviewPageData) => {
+    let $ = cheerio.load(await reviewPageData.text())
+    return $('.reviewBox');
+}
+
+const getReviewTitle = async (reviewData) => {
+    let $ = cheerio.load(await reviewData)
+    return $('.reviewTitle').text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+}
+
+const getReviewAuthor = async (reviewData) => {
+    let $ = cheerio.load(await reviewData)
+    return $('.profileMenu').text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+}
+
+const getReviewDate = async (reviewData) => {
+    let $ = cheerio.load(await reviewData)
+    const dateRow = $('.reviewBox').children('div').eq(1).text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
+    const date = dateRow.split(", ");
+    return (`${date[1]}, ${date[2]}`)
+}
+
+const getReviewBody = async (reviewData) => {
+    let $ = cheerio.load(await reviewData)
+    return $('.reviewContent').text().replace(/[\t\r\n]/g,"").replace(/[\"]/g,"").trim()
 }

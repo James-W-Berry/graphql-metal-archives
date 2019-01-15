@@ -1,6 +1,6 @@
 const fetch = require('node-fetch')
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql'
-import { HomePageType, BandPageType } from './resolvers'
+import { HomePageType, BandPageType, ReviewPageType } from './resolvers'
 
 module.exports = new GraphQLSchema({
     query: new GraphQLObjectType({
@@ -22,6 +22,15 @@ module.exports = new GraphQLSchema({
                     return fetch(
                        `https://www.metal-archives.com/bands/${args.band}`
                     )  
+                }
+            },
+            ReviewPage: {
+                type: ReviewPageType,
+                args: {
+                    url: { type: GraphQLString }
+                },
+                resolve: async (res, args, context) => {
+                    return fetch(args.url)
                 }
             }
         }
